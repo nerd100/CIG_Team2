@@ -19,6 +19,7 @@ public class Ryu implements AIInterface {
 	int time = 0;
 	int enemyHealth;
 	boolean nextSkill;
+	boolean exist = false;
 	File file;
 	Key inputKey;
 	String tempskill;
@@ -69,33 +70,54 @@ public class Ryu implements AIInterface {
 	
 	@Override
 	public void processing(){ 
-		if (time > 50){
+		if (time > 100){
 			tempskill = rndcommand(skills);
 			System.out.println(tempskill);
 			time = 0;
 		}
 
-		
-	if(!frameData.getEmptyFlag() && frameData.getRemainingTime() > 0 && tempskill != null){
-	  if(cc.getskillFlag())
-	  	{inputKey = cc.getSkillKey();
-	  	}else{
-	  		inputKey.empty(); 
-	  		cc.skillCancel();
-	  		cc.commandCall(tempskill);  
-	  		
-		} 
-	} 
+		fight(tempskill);
+		fillList();
+		if(succList.size() == 5)
+		{
+			System.out.println("write in file");
+		}
 	time++;
-	if(!frameData.getEmptyFlag()){
+	}
+	public void fillList()
+	{
+		if(!frameData.getEmptyFlag()){
 			if (enemyHealth > cc.getEnemyHP())
-			{
+			{	
+				for(int i = 0; i < succList.size();i++)
+				{
+					if(succList.get(i) == tempskill)
+					{
+						exist = true;
+						break;
+					}
+				}
+				if(exist == false){
 				succList.add(tempskill);
+				}
+				exist = false;
 				enemyHealth = cc.getEnemyHP();
 			}
 		
 		}
 	}
+	public void fight(String tempskill){
+		if(!frameData.getEmptyFlag() && frameData.getRemainingTime() > 0 && tempskill != null){
+			  if(cc.getskillFlag())
+			  	{inputKey = cc.getSkillKey();
+			  	}else{
+			  		inputKey.empty(); 
+			  		cc.skillCancel();
+			  		cc.commandCall(tempskill);  
+			  		}
+				}
+		}
+	
 	public String rndcommand(String[] commandlist){
 		int rnd = new Random().nextInt(commandlist.length);
 		return commandlist[rnd];
