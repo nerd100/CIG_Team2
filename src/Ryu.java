@@ -1,5 +1,3 @@
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.io.*;
 import java.util.Random;
 import java.util.*;
@@ -37,7 +35,7 @@ public class Ryu implements AIInterface {
 	List <String> succList = new ArrayList<String>();
 	List <String> fightList = new ArrayList<String>();
 	
-	String[] fightArray;
+	String[] fightArray = {"FORWARD_WALK","BACK_STEP"};
 	String[] skills = 
 		{"AIR","AIR_A","AIR_B","AIR_D_DB_BA","AIR_D_DB_BB","AIR_D_DF_FA","AIR_D_DF_FB"
 			+ "AIR_DA","AIR_DB","AIR_F_D_DFA","AIR_F_D_DFB","AIR_FA","AIR_FB","AIR_GUARD","AIR_GUARD_RECOV",
@@ -54,7 +52,6 @@ public class Ryu implements AIInterface {
 		this.inputKey = new Key();
 		cc = new CommandCenter();
 		frameData = new FrameData();
-		
 		enemyHealth = 0;
 		nextSkill = true;
 		//create file
@@ -88,7 +85,7 @@ public class Ryu implements AIInterface {
 	
 	@Override
 	public void processing(){ 
-		if(frameData.getRound() <= 3){
+		if(frameData.getRound() <= 0){
 			
 		if (time > 100){
 			tempskill = rndcommand(skills);
@@ -115,6 +112,12 @@ public class Ryu implements AIInterface {
 		}
 	time++;
 		}else{
+			try {
+				bw.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			BufferedReader reader = null;
 			try {
 				reader = new BufferedReader(new FileReader(file));
@@ -153,10 +156,12 @@ public class Ryu implements AIInterface {
 		    	  temp1[j] = temp1[j].replaceAll("\\s|\\[|\\]", "");
 	    		  fightList.add(temp1[j]);
 	    	  	}
+		      fightList.add("FORWARD_WALK");
 		      fightArray = fightList.toArray(new String[fightList.size()]);
 		      }
 
 		      tempskill = rndcommand(fightArray);
+		      System.out.println(fightList);
 		      fight(tempskill);
 		}
 	}
@@ -174,7 +179,7 @@ public class Ryu implements AIInterface {
 	    	  {
 	    		  temp2.add(temp1[j]);
 	    	  }
-	    	  String dmg = temp2.get(2).replaceAll("[\\s\\]]", "");
+	    	  String dmg = temp2.get(5).replaceAll("[\\s\\]]", "");
 	    	  currentDmg = Integer.parseInt(dmg);
 	    	  if(lastDmg < currentDmg){
 	    	  lastDmg = currentDmg;
