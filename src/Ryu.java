@@ -26,11 +26,13 @@ public class Ryu implements AIInterface {
 	int lastDmg = 0;
 	int fightLine = -1;
 	int line = 0;
+	int learningRounds = 0;
 	
 	boolean nextSkill;
 	boolean CmdExist = false;
 	boolean playerNumber;
 	boolean limit = false;
+	boolean learn;
 	
 	Key inputKey;
 	FrameData  frameData;
@@ -86,6 +88,8 @@ public class Ryu implements AIInterface {
 		
 		reset();
 		
+		
+		
 	    return 0; 
 	}
 
@@ -99,7 +103,14 @@ public class Ryu implements AIInterface {
 	
 	@Override
 	public void processing(){
-		if(frameData.getRound() <= 0){
+		if (learn == true){
+			learningRounds = 2;
+			System.out.println("Learning...");
+		}else{
+			System.out.println("Fighting...");
+			learningRounds = -2;
+		}
+		if(frameData.getRound() <= learningRounds){
 			
 		if (time > 100){
 			tempskill = rndcommand(skills);
@@ -145,23 +156,22 @@ public class Ryu implements AIInterface {
 			try {
 				line = reader.readLine();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+			
 		      while (line != null) {
-		          results.add(line);
+		    	  results.add(line);
+		          //System.out.println("Results: "+line);
 		          try {
 					line = reader.readLine();
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
+		          
 		      }
-		      //System.out.println(results);
 		      if(fightLine == -1){
 		      fightLine = whichLine(results);
 		      }
-		      //System.out.println(results.get(fightLine));
 		      if(fightList.isEmpty()){
 		      String temp = results.get(fightLine);
 		      String[] temp1 = temp.split(",");
@@ -172,11 +182,12 @@ public class Ryu implements AIInterface {
 	    		  fightList.add(temp1[j]);
 	    	  	}
 		      fightList.add("FORWARD_WALK");
+		      System.out.println("FL: "+fightList);
 		      fightArray = fightList.toArray(new String[fightList.size()]);
 		      }
 
 		      tempskill = rndcommand(fightArray);
-		      System.out.println(fightList);
+		      //System.out.println(fightList);
 		      fight(tempskill);
 		}
 	}
@@ -254,8 +265,17 @@ public class Ryu implements AIInterface {
 		
 		if(count != null)
 		{
-			if (Integer.parseInt(count) >= 11)
+			if (Integer.parseInt(count) <= 10)
 			{
+				learn = true;
+			}
+			if(Integer.parseInt(count) == 11)
+			{
+				learn = false;
+			}
+			if (Integer.parseInt(count) > 11)
+			{
+				learn = true;
 				try {
 					PrintWriter writer = new PrintWriter(file);
 					writer.print("");
