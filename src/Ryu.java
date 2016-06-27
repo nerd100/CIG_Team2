@@ -10,11 +10,14 @@ import commandcenter.CommandCenter;
 
 public class Ryu implements AIInterface {
 	BufferedWriter bw = null;
-	Writer writer = null;
+	BufferedWriter bw2 = null;
 	File file;
+	File file2;
 	FileWriter fw;
+	FileWriter fw2;
 	
 	String tempskill;
+	String count = null;
 	
 	int time = 0;
 	int enemyHealth;
@@ -25,8 +28,9 @@ public class Ryu implements AIInterface {
 	int line = 0;
 	
 	boolean nextSkill;
-	boolean exist = false;
+	boolean CmdExist = false;
 	boolean playerNumber;
+	boolean limit = false;
 	
 	Key inputKey;
 	FrameData  frameData;
@@ -35,7 +39,7 @@ public class Ryu implements AIInterface {
 	List <String> succList = new ArrayList<String>();
 	List <String> fightList = new ArrayList<String>();
 	
-	String[] fightArray = {"FORWARD_WALK","BACK_STEP"};
+	String[] fightArray;
 	String[] skills = 
 		{"AIR","AIR_A","AIR_B","AIR_D_DB_BA","AIR_D_DB_BB","AIR_D_DF_FA","AIR_D_DF_FB"
 			+ "AIR_DA","AIR_DB","AIR_F_D_DFA","AIR_F_D_DFB","AIR_FA","AIR_FB","AIR_GUARD","AIR_GUARD_RECOV",
@@ -56,22 +60,32 @@ public class Ryu implements AIInterface {
 		nextSkill = true;
 		//create file
 		file = new File("data/aiData/SkillTable/skill_table.txt");
-		file.getParentFile().mkdirs();
+		file2 = new File("data/aiData/SkillTable/Round.txt");
+		
 		try {
 			if(!file.exists())
 			file.createNewFile();
 		} catch (IOException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
+		file2.getParentFile().mkdirs();
+		try {
+			if(!file2.exists())
+			file2.createNewFile();
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+		
+		
 		try {
 			fw = new FileWriter(file.getAbsoluteFile(),true);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		bw = new BufferedWriter(fw);
-
+		
+		reset();
+		
 	    return 0; 
 	}
 
@@ -84,7 +98,7 @@ public class Ryu implements AIInterface {
 
 	
 	@Override
-	public void processing(){ 
+	public void processing(){
 		if(frameData.getRound() <= 0){
 			
 		if (time > 100){
@@ -102,6 +116,7 @@ public class Ryu implements AIInterface {
 			try {
 				bw.append(succList.toString());
 				bw.newLine();
+				
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -198,20 +213,96 @@ public class Ryu implements AIInterface {
 				{
 					if(succList.get(i) == tempskill)
 					{
-						exist = true;
+						CmdExist = true;
 						break;
 					}
 				}
-				if(exist == false){
+				if(CmdExist == false){
 				succList.add(tempskill);
 				absDamage += Math.abs(enemyHealth - cc.getEnemyHP());
 				}
-				exist = false;
+				CmdExist = false;
 				enemyHealth = cc.getEnemyHP();
 			}
 		
 		}
 	}
+	
+	public void reset()
+	{
+		BufferedReader reader2 = null;
+		try {
+			reader2 = new BufferedReader(new FileReader(file2));
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+		try {
+			count = reader2.readLine();
+			System.out.println(count);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		try {
+			fw2 = new FileWriter(file2);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		bw2 = new BufferedWriter(fw2);
+		
+		
+		if(count != null)
+		{
+			if (Integer.parseInt(count) >= 11)
+			{
+				try {
+					PrintWriter writer = new PrintWriter(file);
+					writer.print("");
+					writer.close();
+
+				} catch (IOException e2) {
+					e2.printStackTrace();
+				}
+				limit = true;
+				try {
+					file.createNewFile();
+				} catch (IOException e1) {
+
+					e1.printStackTrace();
+				}
+				try {
+					bw2.write("0");
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+			if (limit == false){
+				int f = Integer.parseInt(count);
+				f+=1;
+				try {
+					bw2.write(Integer.toString(f));
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}	
+		}else{
+			try {
+				bw2.write("0");
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		try {
+			bw2.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+	
 	public void fight(String tempskill){
 		if(!frameData.getEmptyFlag() && frameData.getRemainingTime() > 0 && tempskill != null){
 			  if(cc.getskillFlag())
