@@ -41,6 +41,7 @@ public class Ryu implements AIInterface {
 	List <String> succList = new ArrayList<String>();
 	List <String> fightList = new ArrayList<String>();
 	
+	String[] emergencyArray = {"FORWARD_WALK","STAND_A","STAND_D_DF_FB","CROUCH_FB","CROUCH_A","STAND_B"};
 	String[] fightArray;
 	String[] skills = 
 		{"AIR","AIR_A","AIR_B","AIR_D_DB_BA","AIR_D_DB_BB","AIR_D_DF_FA","AIR_D_DF_FB"
@@ -64,6 +65,7 @@ public class Ryu implements AIInterface {
 		file = new File("data/aiData/SkillTable/skill_table.txt");
 		file2 = new File("data/aiData/SkillTable/Round.txt");
 		
+		file.getParentFile().mkdirs();
 		try {
 			if(!file.exists())
 			file.createNewFile();
@@ -172,12 +174,16 @@ public class Ryu implements AIInterface {
 		      if(fightLine == -1){
 		      fightLine = whichLine(results);
 		      }
+		      if (fightLine == -1)
+		      {
+		    	  tempskill = rndcommand(emergencyArray);
+		    	  fight(tempskill);
+		      }else{
 		      if(fightList.isEmpty()){
 		      String temp = results.get(fightLine);
 		      String[] temp1 = temp.split(",");
 		      for (int j = 0; j < temp1.length-1;j++)
 		      	{
-		    
 		    	  temp1[j] = temp1[j].replaceAll("\\s|\\[|\\]", "");
 	    		  fightList.add(temp1[j]);
 	    	  	}
@@ -189,12 +195,17 @@ public class Ryu implements AIInterface {
 		      tempskill = rndcommand(fightArray);
 		      //System.out.println(fightList);
 		      fight(tempskill);
+		      }
 		}
 	}
 	
 	public int whichLine(List<String> results)
 	{
-		
+		if(results.size() == 0)
+		{
+			return -1;
+		}
+		else{
 		for (int i = 0 ; i < results.size(); i++)
 	      {
 	    	  //System.out.println(results.get(i));
@@ -213,6 +224,7 @@ public class Ryu implements AIInterface {
 	    	  }
 	      }   	
 		return line;
+		}
 	}
 	
 	public void fillList()
@@ -307,6 +319,7 @@ public class Ryu implements AIInterface {
 				}
 			}	
 		}else{
+			learn = true;
 			try {
 				bw2.write("0");
 			} catch (IOException e) {
